@@ -6,7 +6,7 @@ Based on Olgas epsilon paper adapted for two participants
 import numpy as np
 import math
 from simulib.montecarlo import MonteCarlo
-from simulib.process import simulate_one_gbm, simulate_one_two_factor_schwartz_smith
+from simulib.process import simulate_one_gbm, simulate_one_two_factor_schwartz_smith, simulate_one_two_factor_schwartz_smith_ALT
 from simulib.visualize import *
 
 # Olgas exogenous parameters
@@ -63,13 +63,13 @@ class FieldOperatorPath(MonteCarlo.Path):
             "mu": 0.17,
             "sigma": 0.386,
             "p_0": 97.1,
-            "dt": 1/T_LT,
+            "dt": 1,
             "period": T_LT
         }
 
         # gas GBP / therm -> * 5.398175 / 100 # converted to NOK / Sm^3 
         gas_schwartz_smith_params = {
-            "dt": 1/T_LT,
+            "dt": 1,
             "period": T_LT,
 
             "xi_0": 4.38,
@@ -86,6 +86,8 @@ class FieldOperatorPath(MonteCarlo.Path):
 
         P_ets_t = simulate_one_gbm(**carbon_gbm_params) 
         P_gas_t = simulate_one_two_factor_schwartz_smith(**gas_schwartz_smith_params) 
+        # P_gas_t = simulate_one_two_factor_schwartz_smith_ALT(**gas_schwartz_smith_params) 
+
 
         return {"P_ets_t": P_ets_t, "P_gas_t": P_gas_t}
 
@@ -131,7 +133,7 @@ r = 0.08  # Example discount rate (8%)
 
 # Visualize the results
 # plot_cash_flows(monte_carlo_simulation)
-plot_state_variables(monte_carlo_simulation)
-# plot_npv_distribution(monte_carlo_simulation, r)
+# plot_state_variables(monte_carlo_simulation)
+plot_npv_distribution(monte_carlo_simulation, r)
 # plot_npv_boxplot(monte_carlo_simulation, r)
 # plot_state_variable_histograms_at_year(monte_carlo_simulation, 5)

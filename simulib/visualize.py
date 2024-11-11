@@ -15,7 +15,7 @@ def plot_state_variables(monte_carlo_simulation):
     num_state_variables = len(state_variables)
 
     # Create a figure with subplots (one for each state variable)
-    fig, axes = plt.subplots(num_state_variables, 1, figsize=(10, 3 * num_state_variables))
+    fig, axes = plt.subplots(num_state_variables, 1, figsize=(10, 4 * num_state_variables))
     
     # Ensure axes is iterable (if there's only one subplot, it's a single Axes object, not an array)
     if num_state_variables == 1:
@@ -122,11 +122,11 @@ def plot_npv_boxplot(monte_carlo_simulation, r):
     npvs = [net_present_value(path.cash_flows, r) for path in monte_carlo_simulation.paths]
     
     # Calculate percentiles for more detailed view on quartiles
-    lower_percentile = np.percentile(npvs, 5)
-    upper_percentile = np.percentile(npvs, 85)
+    lower_percentile = -5000 # np.percentile(npvs, 0)
+    upper_percentile = 15000 # np.percentile(npvs, 99)
     
     # Create a boxplot
-    plt.figure(figsize=(10, 6))
+    plt.figure(figsize=(16, 6))
     plt.boxplot(npvs, vert=False, patch_artist=True, boxprops=dict(facecolor='lightblue'))
     
     # Set x-axis limits to zoom in on the central 90% of the data
