@@ -133,7 +133,7 @@ r = 0.08  # Example discount rate (8%)
 
 # Visualize the results
 # plot_cash_flows(monte_carlo_simulation)
-# plot_state_variables(monte_carlo_simulation)
+plot_state_variables(monte_carlo_simulation)
 plot_npv_distribution(monte_carlo_simulation, r)
 # plot_npv_boxplot(monte_carlo_simulation, r)
 # plot_state_variable_histograms_at_year(monte_carlo_simulation, 5)
