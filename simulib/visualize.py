@@ -1,6 +1,8 @@
 import matplotlib.pyplot as plt
 import numpy as np
+import seaborn as sns
 from .utils import net_present_value  # Assuming this function is correctly implemented in utils.py
+
 
 
 def plot_state_variables(monte_carlo_simulation):
@@ -15,7 +17,7 @@ def plot_state_variables(monte_carlo_simulation):
     num_state_variables = len(state_variables)
 
     # Create a figure with subplots (one for each state variable)
-    fig, axes = plt.subplots(num_state_variables, 1, figsize=(10, 3 * num_state_variables))
+    fig, axes = plt.subplots(num_state_variables, 1, figsize=(10, 4 * num_state_variables))
     
     # Ensure axes is iterable (if there's only one subplot, it's a single Axes object, not an array)
     if num_state_variables == 1:
@@ -66,56 +68,41 @@ def plot_cash_flows(monte_carlo_simulation):
 
 def plot_npv_distribution(monte_carlo_simulation, r):
     """
-    Plot the distribution of NPVs from all simulation paths and mark the expected value,
-    along with the average values for bins less than and greater than the specified range.
-    
+    Plot the distribution of NPVs from all simulation paths, marking the expected value
+    and the average values for bins less than and greater than the specified range.
+
     :param monte_carlo_simulation: An instance of the MonteCarlo class containing the simulation results.
     :param r: Discount rate (as a decimal, e.g., 0.08 for 8%).
     """
-    npvs = []
-    for path in monte_carlo_simulation.paths:
-        npv = net_present_value(path.cash_flows, r)
-        npvs.append(npv)
+    # Calculate NPVs from the simulation paths
+    npvs = [net_present_value(path.cash_flows, r) for path in monte_carlo_simulation.paths]
     
-    # Calculate the expected value (mean NPV)
+    # Compute statistics for the distribution
     expected_value = np.mean(npvs)
+    percentiles = np.percentile(npvs, [10, 50, 90])
     
-    # Set up reasonable bins based on the known project value range
-    bins = np.linspace(-4000, 12000, 100)  # 100 bins between -4000 and 12000 mNOK
-
-    # Identify the NPVs less than -4000 and greater than 12000
-    npvs_less_than_range = [npv for npv in npvs if npv < -4000]
-    npvs_greater_than_range = [npv for npv in npvs if npv > 12000]
-
-    # Calculate the average values for NPVs outside the range
-    avg_less_than_range = np.mean(npvs_less_than_range) if npvs_less_than_range else None
-    avg_greater_than_range = np.mean(npvs_greater_than_range) if npvs_greater_than_range else None
-
-    # Plot the histogram of NPVs
-    plt.figure(figsize=(10, 6))
-    plt.hist(npvs, bins=bins, edgecolor="black", alpha=0.7)
+    # Set up bins for histogram
+    bins = np.linspace(-4000, 12000, 20)  # Adjust based on expected NPV range
     
-    # Add a vertical line for the expected value (mean NPV)
-    plt.axvline(expected_value, color='red', linestyle='dashed', linewidth=2, label=f"Expected Value: {expected_value:.2f} mNOK")
+    # Plot histogram and overlay KDE for smoother visualization
+    plt.figure(figsize=(12, 7))
+    sns.histplot(npvs, bins=bins, kde=True, color="skyblue", edgecolor="black", alpha=0.6)
     
-    # Add annotations for the average values of NPVs outside the range
-    if avg_less_than_range is not None:
-        plt.annotate(f"Avg. NPV < -4000: {avg_less_than_range:.2f} mNOK", 
-                     xy=(-4000, 30), xycoords='data', color='green', fontsize=10, 
-                     horizontalalignment='right', verticalalignment='bottom')
+    # Expected value line
+    plt.axvline(expected_value, color="red", linestyle="--", linewidth=2, label=f"Expected Value: {expected_value:.2f} mNOK")
     
-    if avg_greater_than_range is not None:
-        plt.annotate(f"Avg. NPV > 12000: {avg_greater_than_range:.2f} mNOK", 
-                     xy=(12000, 30), xycoords='data', color='blue', fontsize=10, 
-                     horizontalalignment='left', verticalalignment='bottom')
-
-    # Optionally, you can also include a legend to display the expected value label
-    plt.legend(loc="best")
+    # Add percentile markers
+    plt.axvline(percentiles[0], color="purple", linestyle=":", linewidth=1.5, label=f"10th Percentile: {percentiles[0]:.2f} mNOK")
+    plt.axvline(percentiles[1], color="green", linestyle=":", linewidth=1.5, label=f"Median (50th Percentile): {percentiles[1]:.2f} mNOK")
+    plt.axvline(percentiles[2], color="orange", linestyle=":", linewidth=1.5, label=f"90th Percentile: {percentiles[2]:.2f} mNOK")
     
-    plt.title("NPV Distribution of Cash Flows")
+    # Add title and labels
+    plt.title("NPV Distribution of Cash Flows from Monte Carlo Simulation")
     plt.xlabel("Net Present Value (mNOK)")
     plt.ylabel("Frequency")
-    plt.grid(True)
+    plt.grid(axis="y", linestyle="--", alpha=0.7)
+    plt.legend(loc="best")
+    
     plt.show()
 
 
@@ -130,11 +117,11 @@ def plot_npv_boxplot(monte_carlo_simulation, r):
     npvs = [net_present_value(path.cash_flows, r) for path in monte_carlo_simulation.paths]
     
     # Calculate percentiles for more detailed view on quartiles
-    lower_percentile = np.percentile(npvs, 5)
-    upper_percentile = np.percentile(npvs, 85)
+    lower_percentile = -5000 # np.percentile(npvs, 0)
+    upper_percentile = 15000 # np.percentile(npvs, 99)
     
     # Create a boxplot
-    plt.figure(figsize=(10, 6))
+    plt.figure(figsize=(16, 6))
     plt.boxplot(npvs, vert=False, patch_artist=True, boxprops=dict(facecolor='lightblue'))
     
     # Set x-axis limits to zoom in on the central 90% of the data
