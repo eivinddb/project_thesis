@@ -76,10 +76,14 @@ def plot_npv_distribution(monte_carlo_simulation, r):
     # Set up bins for histogram
     bins = np.linspace(-4000, 12000, 20)  # Adjust based on expected NPV range
     
+    # Calculate percentiles for more detailed view on quartiles
+    lower = -5000 
+    upper = 17500 
     # Plot histogram and overlay KDE for smoother visualization
     plt.figure(figsize=(12, 7))
-    sns.histplot(npvs, bins=bins, kde=True, color="skyblue", edgecolor="black", alpha=0.6)
-    
+    sns.histplot(npvs, bins=bins, kde=False, color="skyblue", edgecolor="black", alpha=0.6)
+    plt.xlim(lower, upper)
+
     # Expected value line
     plt.axvline(expected_value, color="red", linestyle="--", linewidth=2, label=f"Expected Value: {expected_value:.2f} mNOK")
     
@@ -120,7 +124,7 @@ def plot_npv_boxplot(monte_carlo_simulation, r):
     plt.xlim(lower_percentile, upper_percentile)
 
     # Customize plot aesthetics
-    plt.title("NPV Boxplot of Cash Flows (Zoomed to Central 90%)")
+    plt.title("Boxplot of NPVs")
     plt.xlabel("Net Present Value (mNOK)")
     plt.grid(True)
     plt.show()
@@ -157,4 +161,41 @@ def plot_state_variable_histograms_at_year(monte_carlo_simulation, year=5):
         ax.grid(True)
 
     plt.tight_layout()
+    plt.show()
+
+
+def plot_ppa_price_distribution(monte_carlo_simulation):
+    """
+    Plot the distribution of PPA prices from all simulation paths.
+
+    :param monte_carlo_simulation: An instance of the MonteCarlo class containing the simulation results.
+    """
+    # Calculate PPA prices from each simulation path
+    ppa_prices = [path.ppa_price for path in monte_carlo_simulation.paths]
+
+    # Calculate expected value and percentiles
+    expected_price = np.mean(ppa_prices)
+    percentiles = np.percentile(ppa_prices, [10, 50, 90])
+
+    # Plot histogram and overlay KDE for smoother visualization
+    plt.figure(figsize=(12, 7))
+    sns.histplot(ppa_prices, bins=20, binrange=(0, 10000), kde=True, color="skyblue", edgecolor="black", alpha=0.6)
+
+    # Expected PPA price line
+    plt.axvline(expected_price, color="red", linestyle="--", linewidth=2, label=f"Expected PPA Price: {expected_price:.2f} NOK/MWh")
+
+    # Add percentile markers
+    plt.axvline(percentiles[0], color="purple", linestyle=":", linewidth=1.5, label=f"10th Percentile: {percentiles[0]:.2f} NOK/MWh")
+    plt.axvline(percentiles[1], color="green", linestyle=":", linewidth=1.5, label=f"Median (50th Percentile): {percentiles[1]:.2f} NOK/MWh")
+    plt.axvline(percentiles[2], color="orange", linestyle=":", linewidth=1.5, label=f"90th Percentile: {percentiles[2]:.2f} NOK/MWh")
+
+    plt.xlim(0, 10000)
+
+    # Add title and labels
+    plt.title("PPA Price Distribution from Monte Carlo Simulation")
+    plt.xlabel("PPA Price (NOK/MWh)")
+    plt.ylabel("Frequency")
+    plt.grid(axis="y", linestyle="--", alpha=0.7)
+    plt.legend(loc="best")
+    
     plt.show()

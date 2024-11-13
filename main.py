@@ -8,19 +8,21 @@ import math
 from simulib.montecarlo import MonteCarlo
 from simulib.process import simulate_one_gbm, simulate_one_two_factor_schwartz_smith, simulate_one_two_factor_schwartz_smith_ALT
 from simulib.visualize import *
+from simulib.utils import net_present_value  # Assuming this function is correctly implemented in utils.py
+
 
 # Olgas exogenous parameters
-CAPEX_owf = 3500 # mNOK
-OPEX_owf = 200 # mNOK
+CAPEX_owf = 1500 # mNOK
+OPEX_owf = 12 # mNOK/yr
 TAX_co2 = 632 # NOK /tCO2
 r = 8 / 100 # %
 T_max = 10 # years # NOTE: decision period not yet usable
 T_C = 2 # years # TODO: unused
 T_LT = 25 # years
-f_owf = 35 / 100 # %
-e = 2.364 # kg CO2-eq /Sm^3
+f_owf = 21.5 / 100 # %
 E_pmax = 0.3 # TWh
 
+e = 2.364 # kg CO2-eq /Sm^3
 
 # agreed electricity price
 p = 0 #2500 # NOK/MWh =:= mNOK/TWh
@@ -28,6 +30,14 @@ p = 0 #2500 # NOK/MWh =:= mNOK/TWh
 ##################
 # wind operator  #
 ##################
+def levelized_cost_of_energy():
+    E_t = np.array([0, 0] + [E_pmax for i in range(T_LT - 2)]) # electricity demand at year t
+    CAPEX_t = np.array([CAPEX_owf/2, CAPEX_owf/2] + [0 for i in range(T_LT - 2)]) # capex split over first two years
+    OPEX_t = np.array([0, 0] + [OPEX_owf for i in range(T_LT - 2)]) # opex equal for each operating year
+
+    ppa_price = net_present_value(CAPEX_t + OPEX_t, r) / net_present_value(E_t * f_owf, r)
+
+    return ppa_price
 # NOTE: currently deterministic
 class WindOperatorPath(MonteCarlo.Path):
 
@@ -46,6 +56,7 @@ class WindOperatorPath(MonteCarlo.Path):
         cash_flows_wo_t = revenues_t - CAPEX_t - OPEX_t
 
         return cash_flows_wo_t
+            
 
 cash_flows_wo_t = WindOperatorPath.calculate_cash_flows(None)
 
@@ -117,9 +128,13 @@ class FieldOperatorPath(MonteCarlo.Path):
 
         # TODO: electricity costs/electricity purchase expenses (from paper not below)
         cash_flows_fo_t = revenues_t - CAPEX_t - OPEX_t - electricitycosts_t
+        
+        self.ppa_price = net_present_value(revenues_t, r) / net_present_value(E_t * f_owf, r)
 
         return cash_flows_fo_t + cash_flows_wo_t
 
+
+print(levelized_cost_of_energy())
 
 # number of simulation paths
 W = 1000
@@ -133,7 +148,9 @@ r = 0.08  # Example discount rate (8%)
 
 # Visualize the results
 # plot_cash_flows(monte_carlo_simulation)
-plot_state_variables(monte_carlo_simulation)
+# plot_state_variables(monte_carlo_simulation)
 plot_npv_distribution(monte_carlo_simulation, r)
-# plot_npv_boxplot(monte_carlo_simulation, r)
+plot_npv_boxplot(monte_carlo_simulation, r)
+
 # plot_state_variable_histograms_at_year(monte_carlo_simulation, 5)
+plot_ppa_price_distribution(monte_carlo_simulation)
