@@ -73,10 +73,11 @@ def plot_npv_distribution(monte_carlo_simulation, r):
     expected_value = np.mean(npvs)
     percentiles = np.percentile(npvs, [10, 50, 90])
     
-    # Set up bins for histogram within the fixed x-axis range
-    bins = np.linspace(-5000, 12500, 30)  # Fixed range for consistent visualization
+
+    bins = np.linspace(-4000, 12000, 20)  # Adjust based on expected NPV range
     
-    # Plot histogram with KDE overlay
+    # Plot histogram and overlay KDE for smoother visualization
+
     plt.figure(figsize=(12, 7))
     sns.histplot(npvs, bins=bins, kde=True, color="skyblue", edgecolor="black", alpha=0.6)
     
@@ -88,11 +89,12 @@ def plot_npv_distribution(monte_carlo_simulation, r):
     plt.axvline(percentiles[1], color="green", linestyle=":", linewidth=1.5, label=f"Median (50th Percentile): {percentiles[1]:.2f} mNOK")
     plt.axvline(percentiles[2], color="orange", linestyle=":", linewidth=1.5, label=f"90th Percentile: {percentiles[2]:.2f} mNOK")
     
+
     # Set fixed x-axis limits
     plt.xlim(-5000, 15500)
-    
-    # Customize plot appearance
-    plt.title("NPV Distribution of Cash Flows from Monte Carlo Simulation (Fixed x-axis)")
+ 
+    # Add title and labels
+    plt.title("NPV Distribution of Cash Flows from Monte Carlo Simulation")
     plt.xlabel("Net Present Value (mNOK)")
     plt.ylabel("Frequency")
     plt.grid(axis="y", linestyle="--", alpha=0.7)

@@ -6,7 +6,7 @@ Based on Olgas epsilon paper adapted for two participants
 import numpy as np
 import math
 from simulib.montecarlo import MonteCarlo
-from simulib.process import simulate_one_gbm, simulate_one_two_factor_schwartz_smith
+from simulib.process import simulate_one_gbm, simulate_one_two_factor_schwartz_smith, simulate_one_two_factor_schwartz_smith_ALT
 from simulib.visualize import *
 import configparser
 
@@ -71,7 +71,9 @@ class FieldOperatorPath(MonteCarlo.Path):
         # gas GBP / therm -> * 5.398175 / 100 # converted to NOK / Sm^3 
         gas_schwartz_smith_params = {key: float(value) for key, value in config["gas_schwartz_smith_params"].items()}
 
+
         P_ets_t = simulate_one_gbm(period=T_LT, **carbon_gbm_params)
+
 
         P_gas_t = simulate_one_two_factor_schwartz_smith(period=T_LT, **gas_schwartz_smith_params) 
 
@@ -121,7 +123,8 @@ r = 0.08  # Example discount rate (8%)
 
 # Visualize the results
 # plot_cash_flows(monte_carlo_simulation)
-# plot_state_variables(monte_carlo_simulation)
+
+plot_state_variables(monte_carlo_simulation)
 plot_npv_distribution(monte_carlo_simulation, r)
 # plot_npv_boxplot(monte_carlo_simulation, r)
 # plot_state_variable_histograms_at_year(monte_carlo_simulation, 5)
