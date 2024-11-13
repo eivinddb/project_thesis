@@ -34,6 +34,14 @@ def plot_state_variables(monte_carlo_simulation):
         ax.set_ylabel(f"{name} Value")
         ax.grid(True)
     
+                # If the state variable is 'Gas Price', calculate and plot the average gas price
+        if name == "P_gas_t":
+            # Calculate the average gas price over all paths at each time step
+            avg_gas_prices = np.mean([path.state_variables["P_gas_t"] for path in monte_carlo_simulation.paths], axis=0)
+            # Plot the average gas price as a separate line (in red for visibility)
+            ax.plot(avg_gas_prices, color='red', linestyle='--', linewidth=2, label="Average Gas Price")
+            ax.legend()
+
     plt.tight_layout()  # Adjust subplots for better spacing
     plt.show()
 
