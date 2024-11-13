@@ -73,10 +73,11 @@ def plot_npv_distribution(monte_carlo_simulation, r):
     expected_value = np.mean(npvs)
     percentiles = np.percentile(npvs, [10, 50, 90])
     
-    # Set up bins for histogram
+
     bins = np.linspace(-4000, 12000, 20)  # Adjust based on expected NPV range
     
     # Plot histogram and overlay KDE for smoother visualization
+
     plt.figure(figsize=(12, 7))
     sns.histplot(npvs, bins=bins, kde=True, color="skyblue", edgecolor="black", alpha=0.6)
     
@@ -88,6 +89,10 @@ def plot_npv_distribution(monte_carlo_simulation, r):
     plt.axvline(percentiles[1], color="green", linestyle=":", linewidth=1.5, label=f"Median (50th Percentile): {percentiles[1]:.2f} mNOK")
     plt.axvline(percentiles[2], color="orange", linestyle=":", linewidth=1.5, label=f"90th Percentile: {percentiles[2]:.2f} mNOK")
     
+
+    # Set fixed x-axis limits
+    plt.xlim(-5000, 15500)
+ 
     # Add title and labels
     plt.title("NPV Distribution of Cash Flows from Monte Carlo Simulation")
     plt.xlabel("Net Present Value (mNOK)")
@@ -158,3 +163,85 @@ def plot_state_variable_histograms_at_year(monte_carlo_simulation, year=5):
 
     plt.tight_layout()
     plt.show()
+
+def improved_npv_boxplot(monte_carlo_simulation, r):
+    """
+    Enhanced boxplot of NPVs from all simulation paths, with median, 10th percentile, and 90th percentile values.
+
+    :param monte_carlo_simulation: An instance of the MonteCarlo class containing the simulation results.
+    :param r: Discount rate (as a decimal, e.g., 0.08 for 8%).
+    """
+    # Calculate NPVs for each simulation path
+    npvs = [net_present_value(path.cash_flows, r) for path in monte_carlo_simulation.paths]
+    
+    # Calculate statistics
+    median_npv = np.median(npvs)
+    p10_npv = np.percentile(npvs, 10)
+    p90_npv = np.percentile(npvs, 90)
+    
+    # Create a boxplot
+    plt.figure(figsize=(12, 6))
+    boxprops = dict(facecolor='lightblue', color='blue')
+    medianprops = dict(color='red', linewidth=2)
+    plt.boxplot(npvs, vert=False, patch_artist=True, boxprops=boxprops, medianprops=medianprops)
+
+    # Plot additional statistics as vertical lines
+    plt.axvline(median_npv, color='darkred', linestyle='--', linewidth=1.5, label=f'Median NPV: {median_npv:.2f}')
+    plt.axvline(p10_npv, color='green', linestyle='--', linewidth=1.5, label=f'10th Percentile: {p10_npv:.2f}')
+    plt.axvline(p90_npv, color='purple', linestyle='--', linewidth=1.5, label=f'90th Percentile: {p90_npv:.2f}')
+    
+    # Set plot limits for better focus on central data
+    plt.xlim(p10_npv - (p90_npv - p10_npv) * 0.5, p90_npv + (p90_npv - p10_npv) * 0.5)
+    
+    # Customizing the plot
+    plt.title("Enhanced NPV Boxplot with Median and Percentiles")
+    plt.xlabel("Net Present Value (mNOK)")
+    plt.grid(True, linestyle='--', alpha=0.7)
+    plt.legend(loc="upper right")
+    plt.show()
+
+
+def improved_npv_distribution_zoomed(monte_carlo_simulation, r, margin=1000):
+    """
+    Enhanced NPV histogram with focused x-axis range around the central distribution for better readability.
+
+    :param monte_carlo_simulation: An instance of the MonteCarlo class containing the simulation results.
+    :param r: Discount rate (as a decimal, e.g., 0.08 for 8%).
+    :param margin: Buffer around the 10th and 90th percentiles for x-axis limits.
+    """
+    # Calculate NPVs for each simulation path
+    npvs = [net_present_value(path.cash_flows, r) for path in monte_carlo_simulation.paths]
+    
+    # Calculate statistics
+    expected_value = np.mean(npvs)
+    median_npv = np.median(npvs)
+    p10_npv = np.percentile(npvs, 10)
+    p90_npv = np.percentile(npvs, 90)
+    
+    # Define bins for histogram within the focused range
+    bins = np.linspace(p10_npv - margin, p90_npv + margin, 30)
+    
+    # Plot histogram with density
+    plt.figure(figsize=(12, 6))
+    sns.histplot(npvs, bins=bins, kde=True, color='lightblue', edgecolor="black", alpha=0.7)
+    
+    # Add vertical lines for key statistics
+    plt.axvline(expected_value, color='darkblue', linestyle='-', linewidth=2, label=f'Expected Value: {expected_value:.2f} mNOK')
+    plt.axvline(median_npv, color='red', linestyle='--', linewidth=2, label=f'Median: {median_npv:.2f} mNOK')
+    plt.axvline(p10_npv, color='green', linestyle='--', linewidth=1.5, label=f'10th Percentile: {p10_npv:.2f} mNOK')
+    plt.axvline(p90_npv, color='purple', linestyle='--', linewidth=1.5, label=f'90th Percentile: {p90_npv:.2f} mNOK')
+    
+    # Set x-axis limits to focus on the main range
+    plt.xlim(p10_npv - margin, p90_npv + margin)
+    
+    # Customize plot appearance
+    plt.title("Enhanced NPV Distribution with Zoomed Focus, Expected Value, and Percentiles")
+    plt.xlabel("Net Present Value (mNOK)")
+    plt.ylabel("Frequency")
+    plt.grid(True, linestyle='--', alpha=0.7)
+    plt.legend(loc="upper right")
+    plt.tight_layout()
+    plt.show()
+
+
+
