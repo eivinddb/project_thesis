@@ -12,7 +12,7 @@ import configparser
 
 # Olgas exogenous parameters
 config = configparser.ConfigParser()
-config.read("config/scenario_default.ini")
+config.read("config/scenario_c-.ini")
 
 params = config["scenario"]
 
@@ -110,7 +110,7 @@ class FieldOperatorPath(MonteCarlo.Path):
 
 
 # number of simulation paths
-W = 1000
+W = 10000
 monte_carlo_simulation = MonteCarlo(FieldOperatorPath, W)
 
 monte_carlo_simulation.run_simulation()
