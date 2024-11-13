@@ -12,18 +12,19 @@ import configparser
 
 # Olgas exogenous parameters
 config = configparser.ConfigParser()
-config.read("config/scenario_Olga.ini")
+config.read("config/scenario_default.ini")
 
 params = config["scenario"]
 
-CAPEX_owf = params.get('CAPEX_owf')
-OPEX_owf = params.get('OPEX_owf')
-f_owf = params.get('f_owf')
-E_pmax = params.get('E_pmax')
-r = params.get('r')
-T_max = params.get('T_max')
-T_C = params.get('T_C')
-T_LT = params.get('T_LT')
+
+CAPEX_owf = float(params.get('CAPEX_owf'))
+OPEX_owf = float(params.get('OPEX_owf'))
+f_owf = float(params.get('f_owf'))
+E_pmax = float(params.get('E_pmax'))
+r = float(params.get('r'))
+T_max = int(params.get('T_max'))
+T_C = int(params.get('T_C'))
+T_LT = int(params.get('T_LT'))
 
 e = 2.364 # kg CO2-eq /Sm^3
 TAX_co2 = 632 # NOK /tCO2
@@ -65,9 +66,10 @@ class FieldOperatorPath(MonteCarlo.Path):
 
     def simulate_state_variables(self):
         # carbon EUR / tCO2-eq -> * 11.96 # converted to NOK / tCO2-eq
-        carbon_gbm_params = config["carbon_gbm_params"]
+        carbon_gbm_params = {key: float(value) for key, value in config["carbon_gbm_params"].items()}
+
         # gas GBP / therm -> * 5.398175 / 100 # converted to NOK / Sm^3 
-        gas_schwartz_smith_params = config["gas_schwartz_smith_params"]
+        gas_schwartz_smith_params = {key: float(value) for key, value in config["gas_schwartz_smith_params"].items()}
 
         P_ets_t = simulate_one_gbm(period=T_LT, **carbon_gbm_params)
 
@@ -119,10 +121,11 @@ r = 0.08  # Example discount rate (8%)
 
 # Visualize the results
 # plot_cash_flows(monte_carlo_simulation)
-plot_state_variables(monte_carlo_simulation)
-# plot_npv_distribution(monte_carlo_simulation, r)
+# plot_state_variables(monte_carlo_simulation)
+plot_npv_distribution(monte_carlo_simulation, r)
 # plot_npv_boxplot(monte_carlo_simulation, r)
 # plot_state_variable_histograms_at_year(monte_carlo_simulation, 5)
 
+# improved_npv_distribution_zoomed(monte_carlo_simulation, r)
 
 
