@@ -57,7 +57,6 @@ def plot_cash_flows(monte_carlo_simulation):
     plt.grid(True)
     plt.show()
 
-
 def plot_npv_distribution(monte_carlo_simulation, r):
     """
     Plot the distribution of NPVs from all simulation paths, marking the expected value
@@ -102,7 +101,6 @@ def plot_npv_distribution(monte_carlo_simulation, r):
     
     plt.show()
 
-
 def plot_npv_boxplot(monte_carlo_simulation, r):
     """
     Plot a boxplot of NPVs from all simulation paths, focusing on the quartiles for detail.
@@ -129,7 +127,6 @@ def plot_npv_boxplot(monte_carlo_simulation, r):
     plt.xlabel("Net Present Value (mNOK)")
     plt.grid(True)
     plt.show()
-
 
 def plot_state_variable_histograms_at_year(monte_carlo_simulation, year=5):
     """
@@ -233,7 +230,6 @@ def plot_gas_price_paths(years, P10, P25, P50, P75, P90, paths, P10_path, P25_pa
     plt.grid(True)
     plt.show()
 
-
 def plot_carbon_price_paths(years, P10, P25, P50, P75, P90, paths, P10_path, P25_path, P50_path, P75_path, P90_path):
     plt.figure(figsize=(10, 6))
     
@@ -267,7 +263,6 @@ def plot_carbon_price_paths(years, P10, P25, P50, P75, P90, paths, P10_path, P25
     plt.grid(True)
     plt.show()
 
-
 def plot_cash_flow_paths(
     years, 
     P10_cash_flow, 
@@ -277,18 +272,6 @@ def plot_cash_flow_paths(
     P90_cash_flow, 
     simulated_cash_flows
 ):
-    """
-    Plots simulated cash flow paths with percentiles.
-
-    Parameters:
-        years (array-like): Array of years for the x-axis.
-        P10_cash_flow (array-like): 10th percentile cash flow path.
-        P25_cash_flow (array-like): 25th percentile cash flow path.
-        P50_cash_flow (array-like): Median (50th percentile) cash flow path.
-        P75_cash_flow (array-like): 75th percentile cash flow path.
-        P90_cash_flow (array-like): 90th percentile cash flow path.
-        simulated_cash_flows (ndarray): 2D array of simulated cash flow paths.
-    """
     plt.figure(figsize=(10, 6))
 
     # Plot percentiles
