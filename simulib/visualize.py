@@ -200,48 +200,121 @@ def improved_npv_boxplot(monte_carlo_simulation, r):
     plt.legend(loc="upper right")
     plt.show()
 
+def plot_gas_price_paths(years, P10, P25, P50, P75, P90, paths, P10_path, P25_path, P50_path, P75_path, P90_path):
+    plt.figure(figsize=(10, 6))
+    
+    # Plot percentile lines
+    plt.plot(years, P10, color='brown', label='P10', linewidth=2)
+    plt.plot(years, P25, color='purple', label='P25', linewidth=2)
+    plt.plot(years, P50, color='orange', label='Expected Value (P50)', linewidth=2)
+    plt.plot(years, P75, color='blue', label='P75', linewidth=2)
+    plt.plot(years, P90, color='green', label='P90', linewidth=2)
 
-def improved_npv_distribution_zoomed(monte_carlo_simulation, r, margin=1000):
-    """
-    Enhanced NPV histogram with focused x-axis range around the central distribution for better readability.
+    # Shade area between P10 and P90
+    plt.fill_between(years, P10, P90, color='lightgreen', alpha=0.3)
 
-    :param monte_carlo_simulation: An instance of the MonteCarlo class containing the simulation results.
-    :param r: Discount rate (as a decimal, e.g., 0.08 for 8%).
-    :param margin: Buffer around the 10th and 90th percentiles for x-axis limits.
-    """
-    # Calculate NPVs for each simulation path
-    npvs = [net_present_value(path.cash_flows, r) for path in monte_carlo_simulation.paths]
-    
-    # Calculate statistics
-    expected_value = np.mean(npvs)
-    median_npv = np.median(npvs)
-    p10_npv = np.percentile(npvs, 10)
-    p90_npv = np.percentile(npvs, 90)
-    
-    # Define bins for histogram within the focused range
-    bins = np.linspace(p10_npv - margin, p90_npv + margin, 30)
-    
-    # Plot histogram with density
-    plt.figure(figsize=(12, 6))
-    sns.histplot(npvs, bins=bins, kde=True, color='lightblue', edgecolor="black", alpha=0.7)
-    
-    # Add vertical lines for key statistics
-    plt.axvline(expected_value, color='darkblue', linestyle='-', linewidth=2, label=f'Expected Value: {expected_value:.2f} mNOK')
-    plt.axvline(median_npv, color='red', linestyle='--', linewidth=2, label=f'Median: {median_npv:.2f} mNOK')
-    plt.axvline(p10_npv, color='green', linestyle='--', linewidth=1.5, label=f'10th Percentile: {p10_npv:.2f} mNOK')
-    plt.axvline(p90_npv, color='purple', linestyle='--', linewidth=1.5, label=f'90th Percentile: {p90_npv:.2f} mNOK')
-    
-    # Set x-axis limits to focus on the main range
-    plt.xlim(p10_npv - margin, p90_npv + margin)
-    
-    # Customize plot appearance
-    plt.title("Enhanced NPV Distribution with Zoomed Focus, Expected Value, and Percentiles")
-    plt.xlabel("Net Present Value (mNOK)")
-    plt.ylabel("Frequency")
-    plt.grid(True, linestyle='--', alpha=0.7)
-    plt.legend(loc="upper right")
-    plt.tight_layout()
+    # Shade area between P25 and P75
+    plt.fill_between(years, P25, P75, color='lightblue', alpha=0.3)
+
+    # Plot the closest paths to each percentile
+    plt.plot(years, P10_path, color='brown', alpha=0.6, linestyle='--', linewidth=1)
+    plt.plot(years, P25_path, color='purple', alpha=0.6, linestyle='--', linewidth=1)
+    plt.plot(years, P50_path, color='orange', alpha=0.6, linestyle='--', linewidth=1)
+    plt.plot(years, P75_path, color='blue', alpha=0.6, linestyle='--', linewidth=1)
+    plt.plot(years, P90_path, color='green', alpha=0.6, linestyle='--', linewidth=1)
+
+    # Set plot title and labels
+    plt.title("Simulated Gas Price Paths with Percentiles")
+    plt.xlabel("Year")
+    plt.ylabel("Gas Price (EUR/Sm³)")
+    plt.xticks(np.arange(min(years), max(years) + 1, 5))
+    plt.ylim(0, max(P90) * 1.1)
+    plt.legend()
+    plt.grid(True)
     plt.show()
 
 
+def plot_carbon_price_paths(years, P10, P25, P50, P75, P90, paths, P10_path, P25_path, P50_path, P75_path, P90_path):
+    plt.figure(figsize=(10, 6))
+    
+    # Plot percentile lines
+    plt.plot(years, P10, color='brown', label='P10', linewidth=2)
+    plt.plot(years, P25, color='purple', label='P25', linewidth=2)
+    plt.plot(years, P50, color='orange', label='Expected Value (P50)', linewidth=2)
+    plt.plot(years, P75, color='blue', label='P75', linewidth=2)
+    plt.plot(years, P90, color='green', label='P90', linewidth=2)
 
+    # Shade area between P10 and P90
+    plt.fill_between(years, P10, P90, color='lightgreen', alpha=0.3)
+
+    # Shade area between P25 and P75
+    plt.fill_between(years, P25, P75, color='lightblue', alpha=0.3)
+
+    # Plot the closest paths to each percentile
+    plt.plot(years, P10_path, color='brown', alpha=0.6, linestyle='--', linewidth=1)
+    plt.plot(years, P25_path, color='purple', alpha=0.6, linestyle='--', linewidth=1)
+    plt.plot(years, P50_path, color='orange', alpha=0.6, linestyle='--', linewidth=1)
+    plt.plot(years, P75_path, color='blue', alpha=0.6, linestyle='--', linewidth=1)
+    plt.plot(years, P90_path, color='green', alpha=0.6, linestyle='--', linewidth=1)
+
+    # Set plot title and labels
+    plt.title("Simulated Carbon Price Paths with Percentiles")
+    plt.xlabel("Year")
+    plt.ylabel("Carbon Price (EUR/tCO₂)")
+    plt.xticks(np.arange(min(years), max(years) + 1, 5))
+    plt.ylim(0, max(P90) * 1.1)
+    plt.legend()
+    plt.grid(True)
+    plt.show()
+
+
+def plot_cash_flow_paths(
+    years, 
+    P10_cash_flow, 
+    P25_cash_flow, 
+    P50_cash_flow, 
+    P75_cash_flow, 
+    P90_cash_flow, 
+    simulated_cash_flows
+):
+    """
+    Plots simulated cash flow paths with percentiles.
+
+    Parameters:
+        years (array-like): Array of years for the x-axis.
+        P10_cash_flow (array-like): 10th percentile cash flow path.
+        P25_cash_flow (array-like): 25th percentile cash flow path.
+        P50_cash_flow (array-like): Median (50th percentile) cash flow path.
+        P75_cash_flow (array-like): 75th percentile cash flow path.
+        P90_cash_flow (array-like): 90th percentile cash flow path.
+        simulated_cash_flows (ndarray): 2D array of simulated cash flow paths.
+    """
+    plt.figure(figsize=(10, 6))
+
+    # Plot percentiles
+    plt.plot(years, P10_cash_flow, color='brown', label='P10', linewidth=2)
+    plt.plot(years, P25_cash_flow, color='purple', label='P25', linewidth=2)
+    plt.plot(years, P50_cash_flow, color='orange', label='Expected Value (P50)', linewidth=2)
+    plt.plot(years, P75_cash_flow, color='blue', label='P75', linewidth=2)
+    plt.plot(years, P90_cash_flow, color='green', label='P90', linewidth=2)
+
+    # Fill between percentiles to show range
+    plt.fill_between(years, P10_cash_flow, P90_cash_flow, color='lightgreen', alpha=0.3, label='P10-P90 Range')
+    plt.fill_between(years, P25_cash_flow, P75_cash_flow, color='lightblue', alpha=0.3, label='P25-P75 Range')
+
+    # Optionally, plot a few sample cash flow paths for variability
+    num_samples = min(5, simulated_cash_flows.shape[0])  # Plot up to 5 sample paths
+    for i in range(num_samples):
+        plt.plot(years, simulated_cash_flows[i], color='grey', alpha=0.5, linestyle='--', linewidth=1)
+
+    # Labels and title
+    plt.title("Simulated Cash Flow Paths with Percentiles")
+    plt.xlabel("Year")
+    plt.ylabel("Cash Flow (EUR)")
+    plt.xticks(np.arange(min(years), max(years) + 1, 5))
+    plt.grid(True)
+    plt.legend()
+    plt.tight_layout()
+
+    # Show the plot
+    plt.show()
