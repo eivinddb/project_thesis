@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import seaborn as sns
 from .utils import net_present_value  # Assuming this function is correctly implemented in utils.py
-
+from sklearn.linear_model import LinearRegression
 
 
 def plot_state_variables(monte_carlo_simulation):
@@ -283,7 +283,6 @@ def plot_cash_flow_paths(
 
     # Fill between percentiles to show range
     plt.fill_between(years, P10_cash_flow, P90_cash_flow, color='lightgreen', alpha=0.3, label='P10-P90 Range')
-    plt.fill_between(years, P25_cash_flow, P75_cash_flow, color='lightblue', alpha=0.3, label='P25-P75 Range')
 
     # Optionally, plot a few sample cash flow paths for variability
     num_samples = min(5, simulated_cash_flows.shape[0])  # Plot up to 5 sample paths
@@ -293,11 +292,43 @@ def plot_cash_flow_paths(
     # Labels and title
     plt.title("Simulated Cash Flow Paths with Percentiles")
     plt.xlabel("Year")
-    plt.ylabel("Cash Flow (EUR)")
+    plt.ylabel("Cash Flow (MNOK)")
     plt.xticks(np.arange(min(years), max(years) + 1, 5))
     plt.grid(True)
     plt.legend()
     plt.tight_layout()
 
     # Show the plot
+    plt.show()
+
+def plot_power_demand_history(historical_years, total_power):
+    historical_years = np.array(historical_years)
+    total_power = np.array(total_power)
+
+    years_reshaped = historical_years.reshape(-1, 1)
+
+    # Fit a linear model
+    model = LinearRegression()
+    model.fit(years_reshaped, total_power)
+
+    # Predict future values for the next 10 years
+    future_years = np.arange(2024, 2034).reshape(-1, 1)
+    future_predictions = model.predict(future_years)
+
+    # Create a linear trendline for historical data
+    trendline = model.predict(years_reshaped)
+
+    # Plot
+    plt.figure(figsize=(10, 6))
+    plt.scatter(historical_years, total_power, color='blue', label='Historical Data')
+    plt.plot(historical_years, trendline, color='red', label='Linear Trendline')
+    plt.plot(future_years, future_predictions, color='green', linestyle='--', label='Predicted Growth (2024-2033)')
+
+    # Labels and Title
+    plt.title('Energy Consumption Growth and Prediction', fontsize=14)
+    plt.xlabel('Year', fontsize=12)
+    plt.ylabel('Total Power (MW)', fontsize=12)
+    plt.legend()
+    plt.grid(True)
+
     plt.show()
