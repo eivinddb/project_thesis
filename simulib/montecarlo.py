@@ -1,10 +1,10 @@
 
 from abc import ABC, abstractmethod
 import numpy as np
+import time
 
 class MonteCarlo:
     """ Class handling all logic related to Monte Carlo simulation """
-    paths = []  # Store all simulation paths
 
     def __init__(self, path_class, num_simulations) -> None:
         """
@@ -18,16 +18,21 @@ class MonteCarlo:
 
         self.path_class = path_class  # The child class that will be used to create paths
         self.num_simulations = num_simulations
+        self.paths = []  # Store all simulation paths
+
+        self.run_simulation()
 
     def run_simulation(self):
         """Run the simulation for the number of paths"""
+        start = time.time()
         for i in range(self.num_simulations):
             # Create a new path instance using the provided child class
             self.paths.append(self.path_class())  # Store the path
+        print(self.path_class.__name__, f"Simulation complete at {int((time.time() - start) * 1000)} ms")
 
     def calculate_all_cash_flows(self, **kwargs):
         ret = []
-        for path in range(self.paths):
+        for path in self.paths:
             ret.append(
                 path.calculate_cash_flows(**kwargs)
             )

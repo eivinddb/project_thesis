@@ -2,10 +2,10 @@
 
 kwargs = {   
     "CAPEX": 2000 * 10**6, # NOK
-    "OPEX": 80 * 10**6, # NOK
+    "OPEX": 100 * 10**6, # NOK
 
-    "r_WC": 0.08,
-    "r_FO": 0.08,
+    "r_WC": 0.06,
+    "r_FO": 0.0833,
 
     "t_construction": 2,
     "LT_field": 6,
@@ -24,18 +24,23 @@ kwargs = {
     "t_tax_ceiling": 5,
     "co2_tax_ceiling": 2650, # NOK / kg CO2 - 2400 2025-kroner justert til 2030-kroner
 
-    "CAPEX_support": 2000 * 10**6, # NOK
+    "CAPEX_support": 652 * 10**6, # NOK
     "NOx_support_rate": 500, # NOK/kg NOx
     "NOx_support_ceiling": 60 * 10**6, # NOK
 }
 
+# MWh
+kwargs["wind_annual_power_production"] = (
+    kwargs["wind_power_rating"] * kwargs["wind_capacity_factor"] * 24 * 365.25
+)
+
 # NG_const Sm3
 kwargs["gas_burned_without_owf"] = (
-    kwargs["wind_power_rating"] * kwargs["wind_capacity_factor"] * 
-    24 * 365.25 * 3.6 * 10**3 / (
+    kwargs["wind_annual_power_production"] * 3.6 * 10**3 / (
         kwargs["gas_efficiency_factor"] * 40  # HHV = 40 MJ/Sm3
     )
 )
+
 
 gas_schwartz_smith_params = {
     "dt": 1,

@@ -16,3 +16,7 @@ def net_present_value(cashflows, r):
     discounted_cashflows = cashflows / (1 + r) ** t  # Discount each cash flow
     npv = np.sum(discounted_cashflows)  # Sum of discounted cash flows
     return npv
+
+
+def print_currency_array(input):
+    print([f"{int(x / 1e6):,}".replace(",", " ") for x in input])

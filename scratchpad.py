@@ -1,4 +1,4 @@
-from config.config import kwargs
+from simulib.config.config import kwargs
 
 
 print(kwargs)

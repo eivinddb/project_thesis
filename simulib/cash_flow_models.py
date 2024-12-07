@@ -1,0 +1,181 @@
+"""
+Script for generating Monte Carlo simulations
+"""
+# imports
+import numpy as np
+import math
+from .montecarlo import MonteCarlo
+from .process import simulate_one_gbm, simulate_one_two_factor_schwartz_smith
+from .utils import *
+
+from config.config import *
+
+
+
+
+class WindOperatorPath(MonteCarlo.Path):
+
+    def __init__(self) -> None:
+        super().__init__()
+
+    def simulate_state_variables(self):
+        return {}
+
+    def calculate_cash_flows(self, 
+        ppa_price,
+        CAPEX, OPEX,
+        r_WC, 
+        t_construction, LT_field,
+        wind_annual_power_production, wind_residual_value,
+        CAPEX_support,
+        **kwargs
+    ):
+        
+        construction_cash_flows = np.array(
+            [((CAPEX_support - CAPEX)/t_construction) for i in range(t_construction)] +
+            [0 for i in range(LT_field - t_construction)] +
+            [0]
+        )
+
+        operation_cash_flows = np.array(
+            [0 for i in range(t_construction)] +
+            [(ppa_price * wind_annual_power_production - OPEX) for i in range(LT_field - t_construction)] +
+            [0]
+        )
+
+        terminal_cash_flows = np.array(
+            [0 for i in range(t_construction)] +
+            [0 for i in range(LT_field - t_construction)] +
+            [wind_residual_value]
+        )
+
+        self.cash_flows = construction_cash_flows + operation_cash_flows + terminal_cash_flows
+
+        print_currency_array(self.cash_flows)
+
+        return net_present_value(self.cash_flows, r_WC)
+
+
+##################
+# field operator #
+##################
+class FieldOperatorPath(MonteCarlo.Path):
+
+    def __init__(self) -> None:
+        super().__init__()
+
+    def simulate_state_variables(self):
+        P_ets_t = simulate_one_gbm(**carbon_gbm_params) 
+        P_gas_t = simulate_one_two_factor_schwartz_smith(**gas_schwartz_smith_params) 
+
+        return {"P_ets": P_ets_t, "P_gas": P_gas_t}
+
+    def calculate_cash_flows(self,
+        ppa_price,
+        r_FO,
+        t_construction, LT_field,
+        wind_annual_power_production,
+        gas_CO2_emissions_factor, gas_NOx_emissions_factor,
+        start_tax, end_tax, t_tax_ceiling, co2_tax_ceiling,
+        NOx_support_rate, NOx_support_ceiling,
+        gas_burned_without_owf,
+        **kwargs
+    ):
+
+        construction_cash_flows = np.array(
+            [0 for i in range(t_construction)] +
+            [0 for i in range(LT_field - t_construction)] +
+            [0]
+        )
+
+        P_ets = self.state_variables["P_ets"] * 11.96 # converted to NOK / tCO2-eq
+        co2_tax_rate = np.array(
+            [start_tax + i * ((end_tax - start_tax)/t_tax_ceiling) for i in range(t_tax_ceiling)] +
+            [(0 if P_ets[i] > co2_tax_ceiling else (co2_tax_ceiling - P_ets[i])*gas_CO2_emissions_factor) for i in range(t_tax_ceiling, LT_field + 1)]
+        )
+
+        avoided_co2_costs = np.concatenate((
+            np.array([0 for i in range(t_construction)]), 
+            ((co2_tax_rate + P_ets*gas_CO2_emissions_factor)*gas_burned_without_owf)[t_construction:LT_field],
+            np.array([0])
+        ))
+
+        P_gas_t = self.state_variables["P_gas"] * 5.398175 / 100 # converted to NOK / Sm^3 
+        added_natural_gas_sales = np.concatenate((
+            np.array([0 for i in range(t_construction)]), 
+            (P_gas_t * gas_burned_without_owf)[t_construction:LT_field],
+            np.array([0])
+        ))
+        
+        government_funding = np.concatenate((
+            np.array([0 for i in range(t_construction)]), 
+            np.array([(
+                (gas_NOx_emissions_factor*gas_burned_without_owf*NOx_support_rate) 
+                if (gas_NOx_emissions_factor*gas_burned_without_owf*NOx_support_rate*i) < NOx_support_ceiling
+                else (
+                    NOx_support_ceiling - gas_NOx_emissions_factor*gas_burned_without_owf*NOx_support_rate*(i - 1)
+                    if (gas_NOx_emissions_factor*gas_burned_without_owf*NOx_support_rate*(i - 1)) < NOx_support_ceiling
+                    else 0
+                )
+            ) for i in range(LT_field - t_construction)]),
+            np.array([0])
+        ))
+
+        # need to filter time
+        electricity_revenue = avoided_co2_costs + added_natural_gas_sales + government_funding
+
+        operation_cash_flows = electricity_revenue - np.array(
+            [0 for i in range(t_construction)] +
+            [(ppa_price * wind_annual_power_production) for i in range(LT_field - t_construction)] +
+            [0]
+        )
+
+        terminal_cash_flows = np.array(
+            [0 for i in range(t_construction)] +
+            [0 for i in range(LT_field - t_construction)] +
+            [0]
+        )
+
+        self.cash_flows = construction_cash_flows + operation_cash_flows + terminal_cash_flows
+
+        print_currency_array(self.cash_flows)
+
+        return net_present_value(self.cash_flows, r_FO)
+
+
+def get_discounted_power_production(
+        wind_annual_power_production, 
+        t_construction, LT_field,
+        discount_rate,
+        **kwargs):
+    power_production_flows = np.array(
+        [0 for i in range(t_construction)] +
+        [wind_annual_power_production for i in range(LT_field - 1)]
+    )
+    return net_present_value(power_production_flows, discount_rate)
+
+# print(
+#     get_discounted_power_production(discount_rate=0.07, **kwargs)
+# )
+
+
+## Main
+ppa_price = 1260 # kr/MWh basert på utsira Nord "high"-case
+W = 5 # number of simulation paths
+
+wc_simulation = MonteCarlo(WindOperatorPath, 1)
+fo_simulation = MonteCarlo(FieldOperatorPath, W)
+
+print("Cash flows WC")
+a = wc_simulation.calculate_all_cash_flows(ppa_price = ppa_price, **kwargs)
+print("Cash flows FO")
+b = fo_simulation.calculate_all_cash_flows(ppa_price = ppa_price, **kwargs)
+
+print("NPV WC")
+print_currency_array(a)
+print("NPV FO")
+print_currency_array(b)
+
+print("Net Project NPV")
+print_currency_array(np.mean(b)+a)
+# get discounted annual cash flows
