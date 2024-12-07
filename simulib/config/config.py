@@ -4,8 +4,8 @@ kwargs = {
     "CAPEX": 2000 * 10**6, # NOK
     "OPEX": 100 * 10**6, # NOK
 
-    "r_WC": 0.06,
-    "r_FO": 0.0833,
+    "r_WC": 0.07, # 0.06,
+    "r_FO": 0.07, # 0.0833,
 
     "t_construction": 2,
     "LT_field": 6,
@@ -13,7 +13,7 @@ kwargs = {
 
     "wind_power_rating": 15, # MW
     "wind_capacity_factor": 0.525, 
-    "wind_residual_value": 1000 * 10**6, # between 900 mNOK and 1800 mNOK
+    "wind_residual_value": 441 * 10**6, # Now selected to recover costs only / between 900 mNOK and 1800 mNOK
 
     "gas_CO2_emissions_factor": 0.00251, # tonn/Sm3 fra miljørapport på Brage
     "gas_NOx_emissions_factor": 0.00979, # kg/Sm3
@@ -24,7 +24,7 @@ kwargs = {
     "t_tax_ceiling": 5,
     "co2_tax_ceiling": 2650, # NOK / kg CO2 - 2400 2025-kroner justert til 2030-kroner
 
-    "CAPEX_support": 652 * 10**6, # NOK
+    "CAPEX_support": 2000 * 10**6, # NOK
     "NOx_support_rate": 500, # NOK/kg NOx
     "NOx_support_ceiling": 60 * 10**6, # NOK
 }

@@ -4,16 +4,14 @@ Script for generating Monte Carlo simulations
 # imports
 import numpy as np
 import math
+
 from .montecarlo import MonteCarlo
 from .process import simulate_one_gbm, simulate_one_two_factor_schwartz_smith
 from .utils import *
-
-from config.config import *
-
+from .config.config import *
 
 
-
-class WindOperatorPath(MonteCarlo.Path):
+class WindContractorPath(MonteCarlo.Path):
 
     def __init__(self) -> None:
         super().__init__()
@@ -51,14 +49,9 @@ class WindOperatorPath(MonteCarlo.Path):
 
         self.cash_flows = construction_cash_flows + operation_cash_flows + terminal_cash_flows
 
-        print_currency_array(self.cash_flows)
-
         return net_present_value(self.cash_flows, r_WC)
 
 
-##################
-# field operator #
-##################
 class FieldOperatorPath(MonteCarlo.Path):
 
     def __init__(self) -> None:
@@ -138,8 +131,6 @@ class FieldOperatorPath(MonteCarlo.Path):
 
         self.cash_flows = construction_cash_flows + operation_cash_flows + terminal_cash_flows
 
-        print_currency_array(self.cash_flows)
-
         return net_present_value(self.cash_flows, r_FO)
 
 
@@ -154,28 +145,4 @@ def get_discounted_power_production(
     )
     return net_present_value(power_production_flows, discount_rate)
 
-# print(
-#     get_discounted_power_production(discount_rate=0.07, **kwargs)
-# )
 
-
-## Main
-ppa_price = 1260 # kr/MWh basert på utsira Nord "high"-case
-W = 5 # number of simulation paths
-
-wc_simulation = MonteCarlo(WindOperatorPath, 1)
-fo_simulation = MonteCarlo(FieldOperatorPath, W)
-
-print("Cash flows WC")
-a = wc_simulation.calculate_all_cash_flows(ppa_price = ppa_price, **kwargs)
-print("Cash flows FO")
-b = fo_simulation.calculate_all_cash_flows(ppa_price = ppa_price, **kwargs)
-
-print("NPV WC")
-print_currency_array(a)
-print("NPV FO")
-print_currency_array(b)
-
-print("Net Project NPV")
-print_currency_array(np.mean(b)+a)
-# get discounted annual cash flows

@@ -18,5 +18,6 @@ def net_present_value(cashflows, r):
     return npv
 
 
-def print_currency_array(input):
-    print([f"{int(x / 1e6):,}".replace(",", " ") for x in input])
+def print_currency_array(name, output):
+    print(name, [f"{int(x / 1e6):,}".replace(",", " ") for x in output])
+
