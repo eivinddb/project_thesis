@@ -25,21 +25,12 @@ class MonteCarlo:
             # Create a new path instance using the provided child class
             self.paths.append(self.path_class())  # Store the path
 
-    def calculate_all_cash_flows(self, **kwargs):
-        ret = []
-        for path in range(self.paths):
-            ret.append(
-                path.calculate_cash_flows(**kwargs)
-            )
-            
-        return ret
-
-
     class Path(ABC):
         """ Abstract class ensuring that state_variables and cash flow are defined """
  
         def __init__(self) -> None:
             self.state_variables = self.simulate_state_variables()
+            self.cash_flows = self.calculate_cash_flows()
 
         @abstractmethod
         def simulate_state_variables(self) -> dict:
@@ -47,9 +38,9 @@ class MonteCarlo:
             pass
 
         @abstractmethod
-        def calculate_cash_flows(self, **kwargs) -> list:
-            """A required function that child classes must define. Needs to modify self.cash_flows and return npv"""
+        def calculate_cash_flows(self) -> list:
+            """A required function that child classes must define."""
             pass
 
         def __str__(self) -> str:
-            return f"{self.__class__.__name__}(Cash Flows: {self.cash_flows[:5]})"
+            return f"{self.__class__.__name__}(Cash Flows: {self.calculate_cash_flows()[:5]})"
