@@ -49,6 +49,8 @@ class WindContractorPath(MonteCarlo.Path):
 
         self.cash_flows = construction_cash_flows + operation_cash_flows + terminal_cash_flows
 
+        self.tax = self.cash_flows * 0.22
+
         return net_present_value(self.cash_flows, r_WC)
 
 
@@ -130,6 +132,9 @@ class FieldOperatorPath(MonteCarlo.Path):
         )
 
         self.cash_flows = construction_cash_flows + operation_cash_flows + terminal_cash_flows
+
+        # tax here
+        self.tax = self.cash_flows * 0.78
 
         return net_present_value(self.cash_flows, r_FO)
 

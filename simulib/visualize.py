@@ -50,9 +50,9 @@ def plot_state_variable_paths(
     plt.plot(years, P90_path, color="green", linestyle="--", alpha=0.6, label="Example Path (P90)")
 
     # Optionally, plot a few random sample paths
-    num_samples = min(5, state_variable_paths.shape[0])
-    for i in range(num_samples):
-        plt.plot(years, state_variable_paths[i], color="grey", linestyle="--", alpha=0.4)
+    # num_samples = min(5, state_variable_paths.shape[0])
+    # for i in range(num_samples):
+    #     plt.plot(years, state_variable_paths[i], color="grey", linestyle="--", alpha=0.4)
 
     # Customize plot
     plt.title(title)
@@ -163,7 +163,7 @@ def plot_breakeven_histogram(data, bins=30, title="Breakeven PPA Levels Histogra
     )
 
     # Add a vertical line for the median
-    plt.axvline(median_value, color='red', linestyle='--', linewidth=2, label=f"Median: {median_value:.0f} mNOK")
+    plt.axvline(median_value, color='red', linestyle='--', linewidth=2, label=f"Median: {median_value:.0f}")
 
     # Customize plot
     plt.title(title)
@@ -174,4 +174,66 @@ def plot_breakeven_histogram(data, bins=30, title="Breakeven PPA Levels Histogra
     plt.tight_layout()
 
     # Show plot
+    plt.show()
+
+
+def plot_histogram_with_line(
+    line_x, line_y, histogram_data, bins=30,
+    line_label="Line Data", histogram_label="Histogram Data",
+    x_label_line="X-Axis (Line)", y_label_line="Y-Axis (Line)",
+    title="Line and Histogram Plot"
+):
+    """
+    Create a combined line graph and histogram with a secondary x-axis for the histogram,
+    and add a horizontal line for the median of the histogram data.
+
+    :param line_x: Array of x-values for the line plot.
+    :param line_y: Array of y-values for the line plot.
+    :param histogram_data: 1D array of data for the histogram.
+    :param bins: Number of bins for the histogram. Default is 30.
+    :param line_label: Label for the line data in the legend.
+    :param histogram_label: Label for the histogram data in the legend.
+    :param x_label_line: Label for the x-axis of the line plot.
+    :param y_label_line: Label for the y-axis of the line plot.
+    :param title: Title of the plot.
+    """
+    # Calculate the histogram data
+    hist_counts, _ = np.histogram(histogram_data, bins=bins)
+    # Create the figure and axis
+    fig, ax1 = plt.subplots(figsize=(8, 6))
+
+    # Plot the line graph
+    ax1.plot(line_x, line_y, label=line_label, color="blue", linewidth=2)
+    ax1.set_xlabel(x_label_line)
+    ax1.set_ylabel(y_label_line, color="blue")
+    ax1.tick_params(axis='y', labelcolor="blue")
+    ax1.grid(axis='x', linestyle='--', alpha=0.7)
+
+    # Add a secondary x-axis for the histogram
+    ax2 = ax1.twiny()
+
+    # Plot the histogram
+    ax2.hist(histogram_data, bins=bins, orientation='horizontal', color="grey", 
+             alpha=0.5, edgecolor="black", label=histogram_label,
+             range=(min(line_y), max(line_y)))
+
+    # Plot a horizontal line for the median of the histogram
+    median_value = np.median(histogram_data)  # Calculate median of histogram data
+    ax2.axhline(median_value, color="red", linestyle="--", linewidth=2, label=f"Median: {median_value:.2f}")
+    p90 = np.quantile(histogram_data, 0.90)
+    ax2.axhline(p90, color="grey", linestyle="--", linewidth=2, label=f"P90: {p90:.2f}")
+    p10 = np.quantile(histogram_data, 0.10)
+    ax2.axhline(p10, color="grey", linestyle="--", linewidth=2, label=f"P10: {p10:.2f}")
+
+    # Scale the top x-axis to fit the histogram frequency
+    ax2.set_xlim(0, max(hist_counts) * 3)
+    ax2.tick_params(axis='x', labeltop=False, top=False)
+
+    # Add a legend to differentiate the data
+    ax1.legend(loc="upper left")
+    ax2.legend(loc="upper right")
+
+    # Set the title and show the plot
+    plt.title(title)
+    plt.tight_layout()
     plt.show()

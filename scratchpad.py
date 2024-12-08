@@ -45,8 +45,8 @@ def plot_capex_vs_ppa_with_histogram(capex_values, demanded_ppa, breakeven_ppas,
 
     # Scale the top x-axis to fit the histogram frequency
     ax2.set_xlim(0, max(hist_counts)*3)
-    ax2.set_xlabel("Frequency (Histogram)", color="grey")
-    ax2.tick_params(axis='x', labelcolor="grey")
+    # ax2.set_xlabel("Frequency (Histogram)", color="grey")
+    ax2.tick_params(axis='x', labeltop=False, top=False)
 
     # Add a legend to differentiate the lines
     ax1.legend(loc="upper left")

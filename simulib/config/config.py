@@ -29,6 +29,8 @@ kwargs = {
     "NOx_support_ceiling": 60 * 10**6, # NOK
 }
 
+
+
 # MWh
 kwargs["wind_annual_power_production"] = (
     kwargs["wind_power_rating"] * kwargs["wind_capacity_factor"] * 24 * 365.25
@@ -45,7 +47,7 @@ kwargs["gas_burned_without_owf"] = (
 gas_schwartz_smith_params = {
     "dt": 1,
     "period": kwargs["LT_field"] + 1,
-    "xi_0": 4.38,
+    "xi_0": 4.38 + 0.371132429,
     "sigma_xi": 0.24,
     "mu_xi": -0.04,
     "kappa": 0.89,
@@ -56,9 +58,9 @@ gas_schwartz_smith_params = {
 }
 
 carbon_gbm_params = {
-    "mu": 0.17,
+    "mu": 0.0616,
     "period": kwargs["LT_field"] + 1,
-    "sigma": 0.386,
-    "p_0": 97.1,
+    "sigma": 0.4807,
+    "p_0": 68.650,	# https://www.ice.com/products/197/EUA-Futures/data?marketId=7937862
     "dt": 1,
 }
