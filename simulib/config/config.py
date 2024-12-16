@@ -6,7 +6,7 @@ kwargs = {
     "OPEX": 24 * 10**6, # NOK 2% of CAPEX
 
     "r_WC": 0.07,#0.06, # 0.06,
-    "r_FO": 0.07,#0.0833, # 0.0833,
+    # "r_FO": 0.07,#0.0833, # 0.0833,
 
     "t_construction": 2,
     "LT_field": 6,
@@ -30,7 +30,7 @@ kwargs = {
     "NOx_support_ceiling": 60 * 10**6, # NOK
 }
 
-
+kwargs["r_FO"] = kwargs["r_WC"]
 
 # MWh
 kwargs["wind_annual_power_production"] = (
@@ -45,9 +45,18 @@ kwargs["gas_burned_without_owf"] = (
 )
 
 kwargs["wind_residual_value"] = (
-    kwargs["wind_annual_power_production"]*kwargs["wind_residual_ppa"]*11.59401424551620000 # Value assuming PPA-price of 1200
-    - kwargs["OPEX"]*11.59401424551620000
-)
+    (
+        kwargs["wind_annual_power_production"]*kwargs["wind_residual_ppa"] # Value assuming PPA-price of 1200
+        - kwargs["OPEX"]
+    ) * sum(
+        [
+            1/(1+kwargs["r_WC"])**i 
+            for i in range(
+                kwargs["LT_turbine"]-kwargs["LT_field"]+kwargs["t_construction"]
+            )
+        ]
+    )
+) 
 
 
 gas_schwartz_smith_params = {

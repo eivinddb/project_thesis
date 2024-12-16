@@ -13,8 +13,8 @@ class MonteCarlo:
         :param path_class: The child class of MonteCarlo.Path
         :param num_simulations: Number of simulations to run
         """
-        if not issubclass(path_class, MonteCarlo.Path):
-            raise TypeError(f"{path_class} is not a subclass of MonteCarlo.Path")
+        # if not issubclass(path_class, MonteCarlo.Path):
+        #     raise TypeError(f"{path_class} is not a subclass of MonteCarlo.Path")
 
         self.path_class = path_class  # The child class that will be used to create paths
         self.num_simulations = num_simulations

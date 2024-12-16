@@ -6,7 +6,7 @@ rng = np.random.default_rng(seed=42)
 #######
 # GBM #
 #######
-def simulate_one_gbm(mu, sigma, p_0, dt, period):
+def simulate_one_gbm(mu, sigma, p_0, dt, period, **kwargs):
     ret = [p_0]
     for i in range(1, period):
         z = rng.normal()
@@ -24,7 +24,8 @@ def simulate_one_two_factor_schwartz_smith(
         dt, period,
         xi_0, sigma_xi, mu_xi, kappa,     # long term
         chi_0, sigma_chi, lambda_chi = 0, # short term
-        rho_xi_chi = 0
+        rho_xi_chi = 0,
+        **kwargs
 ):
     xi = [xi_0]
     chi = [chi_0]
