@@ -1,11 +1,12 @@
 
 
 kwargs = {   
-    "CAPEX": 2000 * 10**6, # NOK
-    "OPEX": 100 * 10**6, # NOK
+    "CAPEX_WC": 1200 * 10**6, # NOK
+    "CAPEX_FO": 180 * 10**6, # NOK
+    "OPEX": 24 * 10**6, # NOK 2% of CAPEX
 
-    "r_WC": 0.07, # 0.06,
-    "r_FO": 0.07, # 0.0833,
+    "r_WC": 0.07,#0.06, # 0.06,
+    "r_FO": 0.07,#0.0833, # 0.0833,
 
     "t_construction": 2,
     "LT_field": 6,
@@ -13,7 +14,7 @@ kwargs = {
 
     "wind_power_rating": 15, # MW
     "wind_capacity_factor": 0.525, 
-    "wind_residual_value": 441 * 10**6, # Now selected to recover costs only / between 900 mNOK and 1800 mNOK
+    "wind_residual_ppa": 1200,
 
     "gas_CO2_emissions_factor": 0.00251, # tonn/Sm3 fra miljørapport på Brage
     "gas_NOx_emissions_factor": 0.00979, # kg/Sm3
@@ -24,7 +25,7 @@ kwargs = {
     "t_tax_ceiling": 5,
     "co2_tax_ceiling": 2650, # NOK / kg CO2 - 2400 2025-kroner justert til 2030-kroner
 
-    "CAPEX_support": 2000 * 10**6, # NOK
+    "CAPEX_support": 400 * 10**6, # NOK based on rates for Hywind and GoliatVind
     "NOx_support_rate": 500, # NOK/kg NOx
     "NOx_support_ceiling": 60 * 10**6, # NOK
 }
@@ -43,11 +44,16 @@ kwargs["gas_burned_without_owf"] = (
     )
 )
 
+kwargs["wind_residual_value"] = (
+    kwargs["wind_annual_power_production"]*kwargs["wind_residual_ppa"]*11.59401424551620000 # Value assuming PPA-price of 1200
+    - kwargs["OPEX"]*11.59401424551620000
+)
+
 
 gas_schwartz_smith_params = {
     "dt": 1,
     "period": kwargs["LT_field"] + 1,
-    "xi_0": 4.38 + 0.371132429,
+    "xi_0": 4.38 - 4.605170186 + 0.5730061863,
     "sigma_xi": 0.24,
     "mu_xi": -0.04,
     "kappa": 0.89,
@@ -57,10 +63,11 @@ gas_schwartz_smith_params = {
     "rho_xi_chi": -0.57,
 }
 
+
 carbon_gbm_params = {
-    "mu": 0.0616,
+    "mu": 0.178,#0.0616,
     "period": kwargs["LT_field"] + 1,
-    "sigma": 0.4807,
+    "sigma": 0.472,#0.4807,
     "p_0": 68.650,	# https://www.ice.com/products/197/EUA-Futures/data?marketId=7937862
     "dt": 1,
 }
