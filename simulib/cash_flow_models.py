@@ -125,7 +125,7 @@ class FieldOperatorPath(MonteCarlo.Path):
             np.array([0])
         ))
 
-        # Added gas sales
+        # Added gas sales https://ngc.equinor.com
         P_gas_t = self.state_variables["P_gas"] * 5.360249 # converted to NOK / Sm^3 
         
         added_natural_gas_sales_t = np.concatenate((
