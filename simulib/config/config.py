@@ -5,7 +5,7 @@ kwargs = {
     "CAPEX_FO": 180 * 10**6, # NOK
     "OPEX": 24 * 10**6, # NOK 2% of CAPEX
 
-    "r_WC": 0.07,#0.06, # 0.06,
+    "r": 0.07,#0.06, # 0.06,
     # "r_FO": 0.07,#0.0833, # 0.0833,
 
     "t_construction": 2,
@@ -21,16 +21,20 @@ kwargs = {
     "gas_efficiency_factor": 0.3, # fra miljørapport på Brage
 
     "start_tax": 2.21, # kr/Sm3
-    "end_tax": 6.20, # kr/Sm3
+    "end_tax": 6.65, # kr/Sm3
     "t_tax_ceiling": 5,
     "co2_tax_ceiling": 2650, # NOK / kg CO2 - 2400 2025-kroner justert til 2030-kroner
 
     "CAPEX_support": 400 * 10**6, # NOK based on rates for Hywind and GoliatVind
     "NOx_support_rate": 500, # NOK/kg NOx
     "NOx_support_ceiling": 60 * 10**6, # NOK
+
+    "gas_price_conversion_factor": 5.360249, # (thrm/Sm3)*(NOK/GBP)
+    "carbon_price_conversion_factor": 11.96, # (NOK/EUR)
+
+    "carbon_price_ceiling": 250
 }
 
-kwargs["r_FO"] = kwargs["r_WC"]
 
 # MWh
 kwargs["wind_annual_power_production"] = (
@@ -44,19 +48,6 @@ kwargs["gas_burned_without_owf"] = (
     )
 )
 
-kwargs["wind_residual_value"] = (
-    (
-        kwargs["wind_annual_power_production"]*kwargs["wind_residual_ppa"] # Value assuming PPA-price of 1200
-        - kwargs["OPEX"]
-    ) * sum(
-        [
-            1/(1+kwargs["r_WC"])**i 
-            for i in range(
-                kwargs["LT_turbine"]-kwargs["LT_field"]+kwargs["t_construction"]
-            )
-        ]
-    )
-) 
 
 
 gas_schwartz_smith_params = {

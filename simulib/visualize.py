@@ -24,7 +24,7 @@ def plot_state_variable_paths(
         'xtick.labelsize': 10,  # Font size for x-ticks
         'ytick.labelsize': 10,  # Font size for y-ticks
         'legend.fontsize': 10,  # Font size for legend
-        'figure.figsize': (8.27 * 0.9, 11.69 * 0.9 * (6 / 8.27) / 2)  # A4 page with 0.9 linewidth
+        'figure.figsize': (8.27 * 0.9, 11.69 * 0.9 * (6 / 8.27) / 2 * 0.8)  # A4 page with 0.9 linewidth
     })
 
     # Calculate percentiles
@@ -154,7 +154,7 @@ def plot_contributors_waterfall(
         'axes.labelsize': 10,
         'xtick.labelsize': 10,
         'ytick.labelsize': 10,
-        'figure.figsize': (8.27 * 0.9, 11.69 * 0.9 * (6 / 8.27) / 2),
+        'figure.figsize': (8.27 * 0.9, 11.69 * 0.9 * (6 / 8.27) / 2 * 0.8),
         'axes.xmargin': 0.05  # Add more space between the axis and bars horizontally
     })
 
@@ -191,7 +191,7 @@ def plot_contributors_waterfall(
     for i, (bar, value) in enumerate(zip(bars, cash_flows_extended)):
         height = bar.get_height()
 
-        down_bool = (bar.get_y() < 0) or (bar.get_y() == max_value)
+        down_bool = (bar.get_y() > 0.5*max_value)
 
         # Decide if text should go inside or outside the bar
         if abs(height) > 0.05*(max_value - min_value):  # Check if the text fits inside the bar
@@ -367,7 +367,8 @@ def plot_histogram(
         xlabel="(mNOK)", 
         ylabel="Frequency",
         max_percentile_limit = 100,
-        percentile_lines = [],
+        percentile_lines = [50],
+        mean_line = True,
         width=1,
         save_path=None, 
         show_plot=True
@@ -381,12 +382,9 @@ def plot_histogram(
         'xtick.labelsize': 10,  # Font size for x-ticks
         'ytick.labelsize': 10,  # Font size for y-ticks
         'legend.fontsize': 10,  # Font size for legend
-        'figure.figsize': (8.27 * 0.9 * width, 11.69 * 0.9 * (6 / 8.27) / 2),  # A4 dimensions with scaling
+        'figure.figsize': (8.27 * 0.9 * width, 11.69 * 0.9 * (6 / 8.27) / 2 * 0.8),  # A4 dimensions with scaling
         'axes.xmargin': 0.05  # Add small horizontal margin
     })
-
-    # Calculate median for annotation
-    median_value = np.median(data)
 
     # Plot histogram
     plt.figure()
@@ -395,8 +393,10 @@ def plot_histogram(
         range=(np.min(data), np.percentile(data, max_percentile_limit))
     )
 
-    # Add a vertical line for the median
-    plt.axvline(median_value, color='red', linestyle='--', linewidth=2, label=f"Median: {median_value:.0f}")
+    if mean_line:
+        mean_value = np.mean(data)
+        plt.axvline(mean_value, color='gray', linestyle='-', linewidth=2, label=f"Average: {mean_value:.0f}")
+
 
     for percentile in percentile_lines:
         percentile_value = np.percentile(data, percentile)

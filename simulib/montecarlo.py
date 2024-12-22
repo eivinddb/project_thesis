@@ -37,7 +37,7 @@ class MonteCarlo:
                 path.calculate_cash_flows(**kwargs)
             )
             
-        return ret
+        return np.array(ret)
 
 
     class Path(ABC):
